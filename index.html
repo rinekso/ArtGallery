@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WebXRArtGallery</title>
+    <meta name="description" content="Art Gallery">
+    <link rel="shortcut icon" href="TemplateData/project-tomorrow-logo.png">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+      #custom-load {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        top: 0;
+        position: absolute;
+        z-index: 10;
+        background-color: #fff;
+      }
+  
+      #custom-load img {
+        text-align: center;
+        width: 200px;
+        height: auto;
+        display: block;
+        margin: 10px auto 50px auto;
+      }
+  
+      #custom-load p {
+        text-align: center;
+        max-width: 500px;
+        font-size: 32px;
+        color: #444;
+        font-weight: bold;
+        margin: auto;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+  
+      #unity-progress-bar-empty {
+        width: 100%;
+        height: 50px;
+        background: none #414141 !important;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: 11;
+      }
+  
+      #unity-progress-bar-full {
+        margin-top: 0;
+        background: none #29b0ff !important;
+        height: 100%;
+      }
+  
+      #entervr,
+      #entervr:disabled, #entervr:enabled {
+        width: 100px;
+        height: 60px;
+        padding: 10px;
+        margin: auto;
+        position: fixed;
+        bottom: 50px;
+        display: block;
+        text-align: center;
+        vertical-align: middle;
+        float: none;
+        left: 50%;
+        transform: translate(-50%, 0);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="unity-container">
+      <div id="unity-canvas-container" style="width: 100%; height: 100%;">
+        <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
+      </div>
+      <div id="custom-load">
+        <img src="TemplateData/project-tomorrow-logo.png">
+        <p>Welcome to project tomorrow. We are excited to showcase some wonderful arts from our young talented artists</p>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+      <div id="unity-loading-bar">
+        <!-- <div id="unity-logo"></div> -->
+      </div>
+      <button id="entervr" value="Enter VR" disabled>Enter VR</button>
+      <div id="unity-footer">
+      </div>
+    </div>
+    <script>
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/ArtGallery.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/ArtGallery.data.br",
+        frameworkUrl: buildUrl + "/ArtGallery.framework.js.br",
+        codeUrl: buildUrl + "/ArtGallery.wasm.br",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "WebXRArtGallery",
+        productVersion: "0.1",
+      };
+
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var canvasContainer = document.querySelector("#unity-canvas-container");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var customLoad = document.querySelector("#custom-load");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var unityInstance = null;
+      
+
+      loadingBar.style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        progressBarFull.style.width = 100 * progress + "%";
+      }).then((instance) => {
+        unityInstance = instance;
+        setTimeout(()=>{
+          loadingBar.style.display = "none";
+          customLoad.style.display = "none";
+        },2000);
+        if (fullscreenButton) {
+          fullscreenButton.onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
+        }
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+      document.body.appendChild(script);
+
+      // let enterARButton = document.getElementById('enterar');
+      let enterVRButton = document.getElementById('entervr');
+
+      // document.addEventListener('onARSupportedCheck', function (event) {
+      //   enterARButton.disabled = !event.detail.supported;
+      // }, false);
+      document.addEventListener('onVRSupportedCheck', function (event) {
+        enterVRButton.disabled = !event.detail.supported;
+      }, false);
+
+      // enterARButton.addEventListener('click', function (event) {
+      //   unityInstance.Module.WebXR.toggleAR();
+      // }, false);
+      enterVRButton.addEventListener('click', function (event) {
+        unityInstance.Module.WebXR.toggleVR();
+      }, false);
+    </script>
+  </body>
+</html>
